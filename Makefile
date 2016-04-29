@@ -1,12 +1,12 @@
 SETS = set1
 
-all: $(SETS)
+test: $(SETS)
 
 clean: $(SETS)
 
-test: $(SETS)
+build: $(SETS)
 
-.PHONY: clean test all $(SETS)
+.PHONY: clean test build $(SETS)
 
 $(SETS):
 	cd $@ && make $(MAKECMDGOALS)
