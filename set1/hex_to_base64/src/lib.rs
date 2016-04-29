@@ -66,6 +66,9 @@ fn hex_decode_works_on_odd() {
     assert!(hex_decode("eadbeef").unwrap() == [14, 173, 190, 239]);
 }
 
-
+#[test]
+fn fail() {
+    assert!(false);
+}
 
 
