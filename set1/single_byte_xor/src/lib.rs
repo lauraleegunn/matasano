@@ -47,30 +47,43 @@ fn apply_single_byte_xor_reencryption_works() {
 /// Error handling is nonexistend/broken, so don't rely
 /// on this thing at all.
 ///
+/// The function takes a &[u8] containing the encrypted
+/// data, and returns a 3-tuple consisting of the
+/// decrypted string, the encryption byte used, and a
+/// score representing how 'sure' the algorithm is
+/// of this decryption. Higher score is better!
+///
 /// ## Example
 ///
 /// ```
 /// use single_byte_xor::decrypt;
 /// ```
-pub fn decrypt(input: &[u8]) -> (String, u8) {
-    let candidates: Vec<(u8, String, f32)> = (0x00..0xFF)
-        .map(|x| (x, String::from_utf8(apply(input, x))))
-        .filter(|ref x| x.1.is_ok())
-        .map(|x| (x.0, x.1.unwrap()))
-        .map(|x| (x.0, x.1.clone(), scoring::english(&(x.1))))
+pub fn decrypt(input: &[u8]) -> (String, u8, f32) {
+    let candidates: Vec<(u8, Vec<u8>, f32)> = (0x00..0xFF)
+        .map(|x| (x, apply(input, x)))
+        .map(|(x, applied)| (x, applied.clone(), String::from_utf8(applied)))
+        .map(|(x, applied, utf8decoded)| 
+             if utf8decoded.is_ok() {
+                 (x, applied, 2.0 * scoring::english(&utf8decoded.unwrap()))
+             } else {
+                 (x, applied.clone(), scoring::english(&String::from_utf8_lossy(&applied)))
+             })
         .collect();
 
-    let winner = candidates.iter().fold(&candidates[0], |a,b| if a.2 > b.2 {a} else {b});
+    let (winner, runnerup) = candidates.iter()
+        .fold((&candidates[0], &candidates[0]), |a,b| if (a.0).2 > b.2 {a} else {(b, a.0)});
     
-    return (winner.1.clone(), winner.0);
+    return (String::from_utf8_lossy(&winner.1).into_owned(), winner.0, winner.2/runnerup.2);
 }
 
 #[test]
 fn decrypt_works_for_unencrypted_strings() {
-    assert_eq!(decrypt(&[101, 110, 103, 108, 105, 115, 104, 32, 115, 116, 114, 105, 110, 103]), (String::from("english string"), 0x00));
+    assert_eq!(decrypt(&[101, 110, 103, 108, 105, 115, 104, 32, 115, 116, 114, 105, 110, 103]).0, String::from("english string"));
+    assert_eq!(decrypt(&[101, 110, 103, 108, 105, 115, 104, 32, 115, 116, 114, 105, 110, 103]).1, 0x00);
 }
 
 #[test]
 fn decrypt_works_for_encrypted_strings() {
-    assert_eq!(decrypt(&apply("some english text here.".as_bytes(), 0xb8)), (String::from("some english text here."), 0xb8));
+    assert_eq!(decrypt(&apply("some english text here.".as_bytes(), 0xb8)).0, String::from("some english text here."));
+    assert_eq!(decrypt(&apply("some english text here.".as_bytes(), 0xb8)).1, 0xb8);
 }

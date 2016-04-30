@@ -7,8 +7,9 @@ use std::env;
 
 fn main() {
     if let Some(hex_string) = env::args().nth(1) {
-        if let Some((data, code)) = try_decrypting(&hex_string) {
+        if let Some((data, code, sureness)) = try_decrypting(&hex_string) {
             println!("code: {}", code);
+            println!("sure: {}%", (sureness*100.0)-100.0);
             println!("data: '{}'", data);
         } else {
             println!("couldn't decrypt data :(");
@@ -23,7 +24,7 @@ fn help() {
     println!(" decrypts the given hex string.");
 }
 
-fn try_decrypting(input: &str) -> Option<(String, u8)> {
+fn try_decrypting(input: &str) -> Option<(String, u8, f32)> {
     let data = hex::decode(input);
 
     if data.is_none() {
