@@ -105,3 +105,10 @@ pub fn english(input: &str) -> f32 {
         } as u8)
         .fold(0 as f32, |sum, i| sum + (i as f32))/(input.len() as f32)
 }
+
+#[test]
+fn english_vovels_score_higher_than_consonants() {
+    assert!(english("aeuoi") > english("cfghkp"));
+    assert!(english("EaUOuoi") > english("GxzKLPm"));
+    assert!(english("aiouee") > english("KLmpmnt"));
+}

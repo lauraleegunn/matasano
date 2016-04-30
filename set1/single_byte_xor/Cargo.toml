@@ -2,3 +2,14 @@
 name = "single_byte_xor"
 version = "0.1.0"
 authors = ["Patrick Elsen <pelsen@xfbs.net>"]
+
+[lib]
+name = "single_byte_xor"
+path = "src/lib.rs"
+
+[[bin]]
+name = "single_byte_xor_decrypter"
+path = "src/bin.rs"
+
+[dependencies]
+hex_to_base64 = { path = "../hex_to_base64" }
