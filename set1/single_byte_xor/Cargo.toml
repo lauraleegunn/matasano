@@ -1,0 +1,4 @@
+[package]
+name = "single_byte_xor"
+version = "0.1.0"
+authors = ["Patrick Elsen <pelsen@xfbs.net>"]
