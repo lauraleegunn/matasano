@@ -111,7 +111,6 @@ fn hex_reencode_works_correctly() {
 }
 
 fn base64_encode(input: &[u8]) -> String {
-    let input: Vec<u8> = Vec::from(input);
     return String::from_utf8(input.chunks(3)
         .map(|chunk|
              if chunk.len() > 2 {
@@ -158,7 +157,45 @@ fn base64_encode_padding_with_equal_signs_works() {
     assert_eq!(base64_encode("sure.".as_bytes()), "c3VyZS4=");
 }
 
-
 fn base64_decode(input: &str) -> Vec<u8> {
-    return Vec::new();
+    let translated: Vec<u8> = input.as_bytes().iter()
+        .map(|c| match *c as char {
+            'A' ... 'Z' => c - ('A' as u8),
+            'a' ... 'z' => c - ('a' as u8) + 26,
+            '0' ... '9' => c - ('0' as u8) + 52,
+            '+' => 62 as u8,
+            '/' => 63 as u8,
+            _ => 64 as u8
+        })
+        .collect();
+
+    return translated.chunks(4)
+        .map(|chunk|
+             if chunk.len() < 3 || chunk[2] == 64 {
+                 vec![(chunk[0] << 2) | (chunk[1] >> 4)]
+             } else if chunk.len() < 4 || chunk[3] == 64 {
+                 vec![(chunk[0] << 2) | (chunk[1] >> 4),
+                 (chunk[1] << 4) | (chunk[2] >> 2)]
+             } else {
+                 vec![(chunk[0] << 2) | (chunk[1] >> 4),
+                 (chunk[1] << 4) | (chunk[2] >> 2),
+                 (chunk[2] << 6) | chunk[3]]
+             })
+        .flat_map(|e| e.into_iter())
+        .collect();
+}
+
+#[test]
+fn base64_decode_works_correctly_on_small_input() {
+    assert_eq!(base64_decode("TQ=="), "M".as_bytes());
+    assert_eq!(base64_decode("TWE="), "Ma".as_bytes());
+}
+
+#[test]
+fn base64_decode_correctly_parses_padding() {
+    assert_eq!(base64_decode("cGxlYXN1cmUu"), "pleasure.".as_bytes());
+    assert_eq!(base64_decode("bGVhc3VyZS4="), "leasure.".as_bytes());
+    assert_eq!(base64_decode("ZWFzdXJlLg=="), "easure.".as_bytes());
+    assert_eq!(base64_decode("YXN1cmUu"), "asure.".as_bytes());
+    assert_eq!(base64_decode("c3VyZS4="), "sure.".as_bytes());
 }
