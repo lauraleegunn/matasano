@@ -199,3 +199,19 @@ fn base64_decode_correctly_parses_padding() {
     assert_eq!(base64_decode("YXN1cmUu"), "asure.".as_bytes());
     assert_eq!(base64_decode("c3VyZS4="), "sure.".as_bytes());
 }
+
+#[test]
+fn base_64_roundtrip_conversion_works() {
+    assert_eq!(base64_decode(&base64_encode("string".as_bytes())), "string".as_bytes());
+    assert_eq!(base64_decode(&base64_encode("morning glory".as_bytes())), "morning glory".as_bytes());
+    assert_eq!(base64_decode(&base64_encode("strifleness".as_bytes())), "strifleness".as_bytes());
+}
+
+#[test]
+fn hex_to_base64_challenge() {
+    let hex = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d";
+    let base64 = "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t";
+
+    assert_eq!(base64_encode(&hex_decode(hex).unwrap()), base64);
+    assert_eq!(hex_encode(&base64_decode(base64), false), hex);
+}
