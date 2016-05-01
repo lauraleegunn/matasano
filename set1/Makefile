@@ -1,4 +1,8 @@
-TARGETS = hex_to_base64
+TARGETS = \
+	hex_to_base64 \
+	fixed_xor \
+	single_byte_xor \
+	repeating_key_xor
 
 test: $(TARGETS)
 
