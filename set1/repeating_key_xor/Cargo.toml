@@ -2,3 +2,6 @@
 name = "repeating_key_xor"
 version = "0.1.0"
 authors = ["Patrick Elsen <pelsen@xfbs.net>"]
+
+[dependencies]
+hex_to_base64 = { path = "../hex_to_base64" }
