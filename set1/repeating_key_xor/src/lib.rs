@@ -37,10 +37,28 @@
 //! people "know how" to break it than can actually break it, and a similar technique breaks
 //! something much more important.
 
-//extern crate single_byte_xor;
 pub mod hamming;
 
+/// # Apply Repeating-Key XOR
+///
+/// This function takes some input and a key, and XOR's the
+/// input with the key, repeating it when it is shorter than
+/// the input.
+///
+/// ## Example
+///
+/// ```
+/// assert_eq!(repeating_key_xor::apply(&[0x12, 0x34], &[0x11]), [0x03, 0x25]);
+/// ```
+pub fn apply(input: &[u8], code: &[u8]) -> Vec<u8> {
+    input.iter()
+        .zip(code.iter().cycle())
+        .map(|(i, c)| (*i) ^ (*c))
+        .collect()
+}
 
 #[test]
-fn it_works() {
+fn repeated_key_xor_apply_works() {
+    assert_eq!(apply(&[0x11, 0x11, 0x00], &[0x11, 0x00]), [0x00, 0x11, 0x11]);
 }
+
