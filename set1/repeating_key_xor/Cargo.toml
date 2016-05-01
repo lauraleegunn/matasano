@@ -1,0 +1,4 @@
+[package]
+name = "repeating_key_xor"
+version = "0.1.0"
+authors = ["Patrick Elsen <pelsen@xfbs.net>"]
