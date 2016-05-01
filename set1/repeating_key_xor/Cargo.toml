@@ -5,3 +5,5 @@ authors = ["Patrick Elsen <pelsen@xfbs.net>"]
 
 [dependencies]
 hex_to_base64 = { path = "../hex_to_base64" }
+single_byte_xor = { path = "../single_byte_xor" }
+itertools = "0.4.13"

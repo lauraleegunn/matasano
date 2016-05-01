@@ -37,7 +37,11 @@
 //! people "know how" to break it than can actually break it, and a similar technique breaks
 //! something much more important.
 
+extern crate itertools;
+extern crate single_byte_xor;
 pub mod hamming;
+use std::cmp;
+use itertools::Itertools;
 
 /// # Apply Repeating-Key XOR
 ///
@@ -60,5 +64,78 @@ pub fn apply(input: &[u8], code: &[u8]) -> Vec<u8> {
 #[test]
 fn repeated_key_xor_apply_works() {
     assert_eq!(apply(&[0x11, 0x11, 0x00], &[0x11, 0x00]), [0x00, 0x11, 0x11]);
+}
+
+fn apnd(v: &Vec<u8>, e: u8) -> Vec<u8> {
+    let mut c = v.clone();
+    c.push(e);
+    c
+}
+
+fn transpose(strs: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
+    strs.iter()
+        .fold(None as Option<Vec<Vec<u8>>>, |transposed, line| 
+            match transposed {
+                None => Some(line.iter().map(|x| vec![*x]).collect()),
+                Some(transposed) => Some(transposed.iter().zip(line.iter()).map(|(c,e)| apnd(c, *e)).collect::<Vec<Vec<u8>>>())
+    }).unwrap()
+}
+
+pub fn break_cipher(input: &[u8]) -> Vec<u8> {
+    let keysizes = keysize_candidates(input, 2, 40);
+
+    // how many candidates should we test?
+    let n_candidates = 3;
+
+    let results: Vec<Vec<u8>> = keysizes.iter()
+        .take(n_candidates)
+        .map(|candidate|
+             transpose((0..(*candidate))
+                .map(|n| 
+                     input.iter()
+                        .cloned()
+                        .skip(n as usize)
+                        .step((*candidate) as usize)
+                        .collect::<Vec<u8>>())
+                .map(|s| single_byte_xor::decrypt(&s))
+                .map(|(result, _, _)| Vec::from(result.as_bytes()))
+                .collect::<Vec<Vec<u8>>>()).iter()
+                .nth(0).unwrap().clone())
+        .inspect(|n| println!("{:?}", String::from_utf8(n.clone()).unwrap()))
+        .collect();
+
+    results[0].clone()
+}
+
+/// # Find Keysize Candidates
+///
+/// This function will attempt to find possible candidates
+/// for the keysize using the edit distance between keysize
+/// sized block of the input data. The list of candidates 
+/// will be arbitrarily long, the only guarantee is that
+/// the candidates will be between min and max, and that
+/// they will be sorted according to their likelyhood (as
+/// estimated by the normalized edit distance).
+///
+/// ## Example
+///
+/// ```
+/// use repeating_key_xor::keysize_candidates;
+///
+/// assert_eq!(keysize_candidates(&[0x44], 4, 5), [4]);
+/// ```
+pub fn keysize_candidates(data: &[u8], min: u32, max: u32) -> Vec<u32> {
+    let mut candidates: Vec<(u32, f32)> = (min..max)
+        .map(|candidate|
+            (candidate, data.chunks(candidate as usize)
+                .zip(data.chunks(candidate as usize).skip(1))
+                .map(|(a, b)| 
+                     (hamming::distance(a, b) / (cmp::min(a.len(), b.len()) as u32)))
+                .fold(0 as u32, |a,b| a+b) as f32 / 
+                cmp::max(1, ((data.len() as u32 + candidate - 1)/candidate) - 1) as f32))
+        .collect();
+    
+    candidates.sort_by(|a,b| (a.1).partial_cmp(&b.1).unwrap());
+    candidates.iter().map(|n| n.0).collect()
 }
 
