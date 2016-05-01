@@ -54,8 +54,10 @@ pub fn decode(input: &str) -> Vec<u8> {
             '0' ... '9' => c - ('0' as u8) + 52,
             '+' => 62 as u8,
             '/' => 63 as u8,
+            ' '|'\n' => 65 as u8, // ignore
             _ => 64 as u8
         })
+        .filter(|n| (*n) != 65)
         .collect();
 
     return translated.chunks(4)
