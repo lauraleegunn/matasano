@@ -77,7 +77,16 @@ fn transpose(strs: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
         .fold(None as Option<Vec<Vec<u8>>>, |transposed, line| 
             match transposed {
                 None => Some(line.iter().map(|x| vec![*x]).collect()),
-                Some(transposed) => Some(transposed.iter().zip(line.iter()).map(|(c,e)| apnd(c, *e)).collect::<Vec<Vec<u8>>>())
+                Some(transposed) => 
+                    Some(transposed.iter()
+                         .zip(0..)
+                         .map(|(c, e)|
+                            if e < line.len() {
+                                apnd(c, line[e]) 
+                            } else {
+                                c.clone()
+                            })
+                         .collect::<Vec<Vec<u8>>>())
     }).unwrap()
 }
 
@@ -100,8 +109,9 @@ pub fn break_cipher(input: &[u8]) -> Vec<u8> {
                 .map(|s| single_byte_xor::decrypt(&s))
                 .map(|(result, _, _)| Vec::from(result.as_bytes()))
                 .collect::<Vec<Vec<u8>>>()).iter()
-                .nth(0).unwrap().clone())
-        .inspect(|n| println!("{:?}", String::from_utf8(n.clone()).unwrap()))
+                .flat_map(|x| x.into_iter())
+                .cloned()
+                .collect::<Vec<u8>>())
         .collect();
 
     results[0].clone()

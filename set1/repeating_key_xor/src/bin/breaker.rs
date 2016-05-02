@@ -8,7 +8,6 @@ fn main() {
     let arg = env::args().nth(1).unwrap();
     let decoded = base64::decode(&arg);
     let broken = break_cipher(&decoded);
-    println!("broken = {:?}", &broken);
     let result = String::from_utf8_lossy(&broken).into_owned();
     println!("{}", result);
 }
