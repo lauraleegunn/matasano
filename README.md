@@ -19,3 +19,11 @@ can test then as well.
 make build
 make test
 ```
+
+## todo
+
+ -  in [set1](set1/)/[aes_128_ecb](set1/aes_128_ecb/), i'd like to
+    try to actually implement the whole of aes myself, both in
+    rust and maybe in C, just to get a feel for it and see how
+    it actually works, instead of using openSSL to do the heavy
+    lifting.
