@@ -7,7 +7,8 @@ see the [website](http://cryptopals.com/) for more information.
 
 ## solutions
 
- -  [set 1](set1/)
+ -  [set 1: basics](set1/)
+ -  [set 2: block crypto](set2/)
 
 ## building and testing
 
