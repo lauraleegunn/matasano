@@ -30,7 +30,7 @@ uses them to decrypt the message, and ranks the decryptions according to
 their likelyhood of being english. the decrypted text with the highest likelyhood
 is then usually the plaintext.
 
-I then built a small [commandline tool](lib/bin.rs) to decrypt either
+I then built a small [commandline tool](src/bin.rs) to decrypt either
 a hex encoded string or all hex encoded strings from a file. after having
 built everything, run it to see the decrypted hex string:
 
