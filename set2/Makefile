@@ -1,4 +1,4 @@
-TARGETS =
+TARGETS = pkcs7
 
 test: $(TARGETS)
 
