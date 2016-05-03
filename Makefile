@@ -1,4 +1,4 @@
-SETS = set1
+SETS = set1 set2
 
 test: $(SETS)
 
