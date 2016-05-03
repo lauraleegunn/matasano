@@ -1,0 +1,8 @@
+[package]
+name = "aes_128_ecb"
+version = "0.1.0"
+authors = ["Patrick Elsen <pelsen@xfbs.net>"]
+
+[dependencies]
+openssl = "0.7.10"
+hex_to_base64 = { path = "../hex_to_base64" }
