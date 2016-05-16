@@ -15,6 +15,8 @@
 //!	>	padding method is well-defined if and only if k < 256;
 //!	>	methods for larger k are an open issue for further study.
 
+use std::iter::repeat;
+
 pub fn pad(input: &[u8], block_size: usize) -> Vec<u8> {
     // calculate how many bytes of padding we need (and
     // we use this value as the value for all the padding
@@ -26,8 +28,8 @@ pub fn pad(input: &[u8], block_size: usize) -> Vec<u8> {
     // `pad_size`, and voilá, you got yourself some padded
     // data!
     input.iter()
-        .chain([pad_size as u8].iter().cycle().take(pad_size))
         .cloned()
+        .chain(repeat(pad_size as u8).take(pad_size))
         .collect::<Vec<u8>>()
 }
 
